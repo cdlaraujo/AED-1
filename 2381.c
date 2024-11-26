@@ -2,55 +2,64 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Node structure for the linked list
+// Estrutura do nó da lista encadeada
 typedef struct node {
-    char V[21]; 
+    char V[21];
     struct node *ptr;
 } node;
+
+// Função para liberar a memória da lista encadeada
+void free_list(node *head) {
+    while (head) {
+        node *temp = head;
+        head = head->ptr;
+        free(temp);
+    }
+}
 
 int main() {
     int N, K;               
     char input[1000];       
-    char *token;            
-    node *head = NULL;      
-    node *tail = NULL;      
+    node *head = NULL, *tail = NULL; 
 
+    // Lê a entrada e separa os valores iniciais
     fgets(input, sizeof(input), stdin);
+    sscanf(input, "%d %d", &N, &K);
 
-    token = strtok(input, "\n"); 
-    sscanf(token, "%d %d", &N, &K);
-
+    // Lê os valores da lista
     for (int i = 0; i < N; i++) {
-        token = strtok(NULL, "\n");
+        fgets(input, sizeof(input), stdin);
 
-        node *new_node = (node *)malloc(sizeof(node));
-        strcpy(new_node->V, token); 
-        new_node->ptr = NULL;     
+        node *new_node = malloc(sizeof(node));
+        if (!new_node) {
+            perror("Erro ao alocar memória");
+            free_list(head);
+            return 1;
+        }
+        sscanf(input, "%20s", new_node->V); // Lê no máximo 20 caracteres
+        new_node->ptr = NULL;
 
-        if (head == NULL) {
-            head = new_node;
-            tail = new_node;
-        } else {
+        if (tail) {
             tail->ptr = new_node;
-            tail = new_node;
+        } else {
+            head = new_node;
         }
+        tail = new_node;
     }
 
+    // Percorre até o K-ésimo nó
     node *current = head;
-    for (int i = 1; i < K; i++) {
-        if (current->ptr != NULL) {
-            current = current->ptr;
-        }
-    }
-
-    printf("%s\n", current->V);
-
-    current = head;
-    while (current != NULL) {
-        node *temp = current;
+    for (int i = 1; i < K && current; i++) {
         current = current->ptr;
-        free(temp);
     }
 
+    if (current) {
+        printf("%s\n", current->V);
+    } else {
+        printf("Índice fora do limite.\n");
+    }
+
+    // Libera a memória alocada
+    free_list(head);
     return 0;
 }
