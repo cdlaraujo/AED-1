@@ -2,76 +2,46 @@
 #include <stdlib.h>
 #include <time.h>
 
-typedef struct node {
-    int number;
-    struct node *ptrpro;
-    struct node *ptrant;
-} node;
+#define MAX 5000
 
-int const MAX = 500000;
+void insertionSort(int arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        int key = arr[i];
+        int j = i - 1;
 
-int main() {
-    int V[MAX];
-
-    int key;
-
-    srand(time(0));
-
-    // Preenchendo o vetor V com valores aleatórios
-    for (int i = 0; i < MAX; i++) {
-        V[i] = rand() % 1000;
-    }
-
-    // Criando nós para a lista duplamente encadeada
-    node* head = (node*)malloc(sizeof(node));
-    node* new_node;
-    node* current_node;
-
-    // Inicializando o primeiro nó
-    head->number = V[0];
-    head->ptrant = NULL;
-    head->ptrpro = NULL;
-    current_node = head;
-
-    // Construindo a lista duplamente encadeada
-    for (int j = 1; j < MAX; j++) {
-        new_node = (node*)malloc(sizeof(node));
-        new_node->number = V[j];
-        new_node->ptrant = current_node;
-        new_node->ptrpro = NULL;
-        current_node->ptrpro = new_node;
-        current_node = new_node;
-    }
-
-    current_node = head;
-
-    // Algoritmo InsertSort
-    for (int k = 0; k < MAX; k++){
-        while(current_node->ptrant != NULL){
-            key = current_node->number;
-            current_node = current_node->ptrant;
-            if (current_node->number <= key){
-                // Faz o esquema de inserir novo nó antes de current node
-                node* new_node = (node*)malloc(sizeof(node));
-                
-            }
+        // Move elementos maiores que `key` para a frente
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
         }
+        arr[j + 1] = key;
     }
-
-
-
-    // Liberação de memória
-    current_node = head;
-    while (current_node != NULL) {
-        node* temp = current_node;
-        current_node = current_node->ptrpro;
-        free(temp);
-    }
-
-    return 0;
 }
 
+int main() {
+    srand(time(0));
 
-int function(node* head, node* key_node, node* new_node, int key){
-    // todo
+    int arr[MAX];
+
+    // Preenche o array com números aleatórios
+    for (int i = 0; i < MAX; i++) {
+        arr[i] = rand() % 1000;
+    }
+
+    clock_t start = clock();  // Medição de tempo
+
+    insertionSort(arr, MAX);  // Ordenação
+
+    clock_t end = clock();  // Fim da medição de tempo
+
+    double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("Tempo de execução: %.6f segundos\n", time_taken);
+
+    // Impressão opcional do array ordenado
+    for (int i = 0; i < MAX; i++) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+
+    return 0;
 }
