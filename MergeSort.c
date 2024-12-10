@@ -1,112 +1,71 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
-typedef struct node {
-    int number;
-    struct node *ptrpro;
-    struct node *ptrant;
-} node;
-
-// Helper function to print the list
-void print_list(node* head) {
-    node* current = head;
-    while (current != NULL) {
-        printf("%d ", current->number);
-        current = current->ptrpro;
+void Merge(int arr[], int left, int mid, int right){
+    int n1 = mid - left + 1;
+    int n2 = right - mid; 
+    
+    int L[n1], R[n2]; // temporary arrays
+    
+    // Copies elements to temporary arrays:
+    for(int i = 0; i < n1; i++) L[i] = arr[left + i];
+    for(int j = 0; j < n2; j++) R[j] = arr[mid + 1 + j];
+    
+    int i = 0, j = 0, k = left;
+    
+    while(i < n1 && j < n2){
+        if(L[i] <= R[j]){
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
     }
-    printf("\n");
-}
-
-// Function to split the list into two halves
-node* split(node* head) {
-    node* slow = head;
-    node* fast = head;
-    while (fast->ptrpro != NULL && fast->ptrpro->ptrpro != NULL) {
-        slow = slow->ptrpro;
-        fast = fast->ptrpro->ptrpro;
+    
+    // Copia os elementos restantes de L[], se houver
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
     }
-    node* second_half = slow->ptrpro;
-    slow->ptrpro = NULL; // Break the list
-    if (second_half != NULL) {
-        second_half->ptrant = NULL; // Disconnect the second half
-    }
-    return second_half;
-}
-
-// Function to merge two sorted halves
-node* merge(node* first, node* second) {
-    if (!first) return second;
-    if (!second) return first;
-
-    if (first->number <= second->number) {
-        first->ptrpro = merge(first->ptrpro, second);
-        first->ptrpro->ptrant = first;
-        first->ptrant = NULL;
-        return first;
-    } else {
-        second->ptrpro = merge(first, second->ptrpro);
-        second->ptrpro->ptrant = second;
-        second->ptrant = NULL;
-        return second;
+    
+    // Copia os elementos restantes de R[], se houver
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
     }
 }
 
-// Merge sort function
-node* merge_sort(node* head) {
-    if (!head || !head->ptrpro) {
-        return head; // Base case: 0 or 1 node
+void MergeSort(int arr[], int left, int right){
+    if(left < right){
+        int middle = left + (right - left) / 2;
+        
+        // Divide the array in two halves:
+        mergeSort(arr, left, middle);
+        mergeSort(arr, middle + 1, right);
+        
+        // Mescla as metades ordenadas
+        Merge(arr, left, middle, right);
     }
-
-    // Split the list into two halves
-    node* second_half = split(head);
-
-    // Recursively sort both halves
-    head = merge_sort(head);
-    second_half = merge_sort(second_half);
-
-    // Merge the sorted halves
-    return merge(head, second_half);
 }
 
-// Main function
-int main() {
+int main(){
+    int k = 1;
     srand(time(0));
 
-    // Create the doubly linked list
-    node* head = (node*)malloc(sizeof(node));
-    node* current = head;
-    current->number = rand() % 1000;
-    current->ptrant = NULL;
+    int arr[500000];
 
-    for (int i = 1; i < 10; i++) { // Small size for demonstration
-        node* new_node = (node*)malloc(sizeof(node));
-        new_node->number = rand() % 1000;
-        new_node->ptrpro = NULL;
-        new_node->ptrant = current;
-        current->ptrpro = new_node;
-        current = new_node;
-    }
+    for(int i = 0; i < 500000; i++) arr[i] = rand() % 1000;
+    int n = 20000 * k;
 
-    printf("Original list:\n");
-    print_list(head);
+    clock_t start = clock();
 
-    // Perform merge sort
-    head = merge_sort(head);
+    mergeSort(arr, 0, n - 1);
 
-    printf("Sorted list:\n");
-
-    
-    print_list(head);
-
-    // Free memory
-    current = head;
-    while (current != NULL) {
-        node* temp = current;
-        current = current->ptrpro;
-        free(temp);
-    }
+    clock_t end = clock();
 
     return 0;
 }
-
