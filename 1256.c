@@ -1,157 +1,93 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-struct ListaNo
-{
-    int valor;
-    struct ListaNo *prox;
-};
+typedef struct node {
+    int key;
+    struct node* next;
+} node;
 
-struct ListaEncadeada
-{
-    struct ListaNo *lista;
-};
-
-struct TabelaHash
-{
-    int n;
-    struct ListaEncadeada *tabela;
-};
-
-void inicializaLista(struct ListaEncadeada *l)
-{
-    l->lista = NULL;
+// Função de hash
+int hash(int key, int table_size) {
+    return key % table_size;
 }
 
-void destroiNo(struct ListaNo *p)
-{
-    if (p->prox != NULL)
-    {
-        destroiNo(p->prox);
+// Criação da tabela hash
+node** create_hash_table(int table_size) {
+    node** hash_table = (node**)malloc(table_size * sizeof(node*));
+    for (int i = 0; i < table_size; i++) {
+        hash_table[i] = NULL; // Inicializa cada posição como NULL
     }
-
-    free(p);
+    return hash_table;
 }
 
-void destroiLista(struct ListaEncadeada *l)
-{
-    if (l->lista != NULL)
-    {
-        destroiNo(l->lista);
-    }
-}
+// Inserção na tabela hash
+void insert_hash_table(int K, node** hash_table, int table_size) {
+    int hash_index = hash(K, table_size); // Calcula índice usando a função hash
 
-struct ListaNo *adicionaNo(struct ListaNo *p, int valor)
-{
-    if (p == NULL)
-    {
-        struct ListaNo *novo = (struct ListaNo *)malloc(sizeof(struct ListaNo));
-        novo->valor = valor;
-        novo->prox = NULL;
+    // Cria novo nó
+    node* new_node = (node*)malloc(sizeof(node));
+    new_node->key = K;
+    new_node->next = NULL;
 
-        return novo;
-    }
-    else
-    {
-        p->prox = adicionaNo(p->prox, valor);
-        return p;
+    // Insere na lista encadeada da posição hash_index
+    if (hash_table[hash_index] == NULL) {
+        hash_table[hash_index] = new_node;
+    } else {
+        node* current = hash_table[hash_index];
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = new_node;
     }
 }
 
-void adicionaElemento(struct ListaEncadeada *l, int valor)
-{
-    if (l == NULL)
-    {
-        l = (struct ListaEncadeada *)malloc(sizeof(struct ListaEncadeada));
+// Imprime a tabela hash
+void print_hash_table(node** hash_table, int table_size) {
+    for (int i = 0; i < table_size; i++) {
+        printf("%d ->", i);
+        node* current = hash_table[i];
+        while (current != NULL) {
+            printf(" %d ->", current->key);
+            current = current->next;
+        }
+        printf(" \\\n");
     }
-
-    l->lista = adicionaNo(l->lista, valor);
 }
 
-void imprimeLista(struct ListaEncadeada *l)
-{
-    if (l != NULL)
-    {
-        struct ListaNo *p = l->lista;
-
-        while (p != NULL)
-        {
-            printf("%d -> ", p->valor);
-            p = p->prox;
+// Libera a memória da tabela hash
+void free_hash_table(node** hash_table, int table_size) {
+    for (int i = 0; i < table_size; i++) {
+        node* current = hash_table[i];
+        while (current != NULL) {
+            node* temp = current;
+            current = current->next;
+            free(temp);
         }
     }
-
-    printf("\\\n");
+    free(hash_table);
 }
 
-void inicializaTabelaHash(struct TabelaHash *tabela, int n)
-{
-    tabela->n = n;
-    tabela->tabela = (struct ListaEncadeada *)malloc(n * sizeof(struct ListaEncadeada));
+int main() {
+    int N, M, C, K;
+    scanf("%d", &N); // Número de casos de teste
 
-    for (int i = 0; i < n; ++i)
-    {
-        inicializaLista(&(tabela->tabela[i]));
-    }
-}
+    while (N--) {
+        scanf("%d", &M); // Tamanho da tabela
+        scanf("%d", &C); // Número de chaves a inserir
 
-void destroiTabelaHash(struct TabelaHash *tabela)
-{
-    for (int i = 0; i < tabela->n; ++i)
-    {
-        destroiLista(&(tabela->tabela[i]));
-    }
+        // Criação da tabela hash
+        node** hash_table = create_hash_table(M);
 
-    tabela->n = 0;
-    free(tabela->tabela);
-}
-
-int funcaoHash(struct TabelaHash *tabela, int valor)
-{
-    return valor % tabela->n;
-}
-
-void adicionaElementoTabela(struct TabelaHash *tabela, int valor)
-{
-    int indice = funcaoHash(tabela, valor);
-    adicionaElemento(&(tabela->tabela[indice]), valor);
-}
-
-void imprimeTabelaHash(struct TabelaHash *tabela)
-{
-    for (int i = 0; i < tabela->n; ++i)
-    {
-        printf("%d -> ", i);
-        imprimeLista(&(tabela->tabela[i]));
-    }
-}
-
-int main()
-{
-    int N, M, C, numero;
-    struct TabelaHash th;
-
-    scanf("%d", &N);
-
-    for (int k = 0; k < N; ++k)
-    {
-        if (k)
-            printf("\n");
-
-        scanf("%d %d", &M, &C);
-
-        inicializaTabelaHash(&th, M);
-
-        for (int i = 0; i < C; ++i)
-        {
-            scanf("%d", &numero);
-
-            adicionaElementoTabela(&th, numero);
+        for (int i = 0; i < C; i++) {
+            scanf("%d", &K);
+            insert_hash_table(K, hash_table, M);
         }
 
-        imprimeTabelaHash(&th);
+        // Imprime a tabela hash
+        print_hash_table(hash_table, M);
 
-        destroiTabelaHash(&th);
+        // Libera a memória alocada
+        free_hash_table(hash_table, M);
     }
 
     return 0;
