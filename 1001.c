@@ -8,7 +8,7 @@ int main() {
     
     X = A + B;
     
-    printf("X = %d", X);
+    printf("X = %d\n", X);
  
     return 0;
 }
