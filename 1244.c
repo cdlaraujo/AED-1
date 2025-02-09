@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// funcao strtok cria tokens com as palavras
+
 int tam;
 char palavras[100][100];
 
