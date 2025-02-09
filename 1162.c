@@ -1,27 +1,23 @@
 #include <stdio.h>
 
-int comp(int a, int b)
-{
+// funcao para comparação com qsort
+int comp(int a, int b) {
     return a - b;
 }
 
-void swap(int *a, int *b)
-{
+void swap(int *a, int *b){
     int aux = *a;
     *a = *b;
     *b = aux;
 }
 
-int insertionSort(int *V, int n)
-{
+int insertionSort(int *V, int n){
     int trocas = 0;
 
-    for (int i = 1; i < n; ++i)
-    {
+    for (int i = 1; i < n; ++i){
         int j = i, k = j - 1;
 
-        while (k > -1 && comp(V[j], V[k]) < 0)
-        {
+        while (k > -1 && comp(V[j], V[k]) < 0){
             swap(&V[j], &V[k]);
             ++trocas;
             --j, --k;
@@ -31,8 +27,7 @@ int insertionSort(int *V, int n)
     return trocas;
 }
 
-int main()
-{
+int main(){
     int N, L, vagoes[50];
 
     scanf("%d", &N);
