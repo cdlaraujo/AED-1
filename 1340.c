@@ -4,7 +4,6 @@
 
 #define MAX_SIZE 1000
 
-// Stack structure and functions
 typedef struct {
     int data[MAX_SIZE];
     int top;
@@ -30,7 +29,6 @@ bool stack_is_empty(Stack* s) {
     return s->top == -1;
 }
 
-// Queue structure and functions
 typedef struct {
     int data[MAX_SIZE];
     int front, rear;
@@ -56,7 +54,7 @@ bool queue_is_empty(Queue* q) {
     return q->front == q->rear;
 }
 
-// Priority Queue structure and functions
+// lista de prioridades
 typedef struct {
     int data[MAX_SIZE];
     int size;
