@@ -13,7 +13,7 @@ int compareEdges(const void *a, const void *b) {
 
 int find(int parent[], int x) {
     if (parent[x] != x)
-        parent[x] = find(parent, parent[x]); // Path compression
+        parent[x] = find(parent, parent[x]);
     return parent[x];
 }
 
@@ -44,10 +44,9 @@ int main() {
             totalCost += edges[i].weight;
         }
 
-        // Sort edges by weight
         qsort(edges, n, sizeof(Edge), compareEdges);
 
-        // Kruskal's algorithm
+        // algoritmo de Kruskal
         int parent[m], rank[m];
         for (int i = 0; i < m; i++) {
             parent[i] = i;
@@ -68,7 +67,7 @@ int main() {
             }
         }
 
-        // Maximum savings
+
         printf("%lld\n", totalCost - mstCost);
     }
 
