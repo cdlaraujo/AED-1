@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct No
-{
+struct No {
     int valor;
     struct No *pai, *esq, *dir;
 };
 
-struct ArvoreBinaria
-{
+struct ArvoreBinaria {
     struct No* topo;
 };
 
