@@ -3,7 +3,7 @@
 
 #define SIZE 25
 
-// Função para encontrar os vizinhos válidos de um dado índice no labirinto
+// Função para encontrar os vizinhos válido
 void vizinhos(int n, int *result, int *count) {
     *count = 0;
     if (n + 5 <= SIZE) result[(*count)++] = n + 5;
@@ -14,7 +14,7 @@ void vizinhos(int n, int *result, int *count) {
 
 // Função recursiva para verificar se a polícia alcança o ladrão
 bool policia(int labirinto[], int caminho[], int caminho_size) {
-    int pos = caminho[caminho_size - 1]; // Última posição no caminho
+    int pos = caminho[caminho_size - 1]; // ultima posição no caminho
 
     if (pos == 25) return true; // Se chegou na célula 25, retorna verdadeiro
 
@@ -43,7 +43,6 @@ bool policia(int labirinto[], int caminho[], int caminho_size) {
     return false;
 }
 
-// Lê o labirinto de entrada
 void leia_labirinto(int labirinto[]) {
     int index = 0;
     while (index < SIZE) {
@@ -59,14 +58,13 @@ void leia_labirinto(int labirinto[]) {
 
 int main() {
     int t;
-    scanf("%d", &t); // Número de casos de teste
+    scanf("%d", &t); 
 
     for (int i = 0; i < t; i++) {
         int labirinto[SIZE];
-        leia_labirinto(labirinto); // Lê o labirinto da entrada
-
+        leia_labirinto(labirinto); 
         int caminho[SIZE];
-        caminho[0] = -4; // Inicia com a posição inicial dada no código original
+        caminho[0] = -4; 
 
         if (policia(labirinto, caminho, 1)) {
             printf("COPS\n");
