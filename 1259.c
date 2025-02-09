@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int comp(const void *a, const void *b)
-{
+// funcao da internet para comparar com qsort - mais rápido e eficiente
+int comp(const void *a, const void *b) {
     int A = *(int *)a, B = *(int *)b;
 
     if (A % 2 == 0)
@@ -16,8 +16,7 @@ int comp(const void *a, const void *b)
         return B - A;
 }
 
-int main()
-{
+int main() {
     int n, numeros[100000];
 
     scanf("%d", &n);
