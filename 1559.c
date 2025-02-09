@@ -20,10 +20,10 @@ int acima(int i, int j){
     return jogo[i - 1][j] == jogo[i][j] || jogo[i - 1][j] == 0;
 }
 
-void imprime(int direcao, char* texto){
+void imprime(int direcao, char* texto) {
     if(direcao){
-        if(first)   first = 0;
-        else        printf(" ");
+        if(first) first = 0;
+        else rintf(" ");
         printf("%s", texto);
     }
 }
