@@ -1,22 +1,18 @@
 #include <stdio.h>
 
-int r(int x, int y)
-{
+int r(int x, int y) {
     return (3 * x) * (3 * x) + y * y;
 }
 
-int b(int x, int y)
-{
+int b(int x, int y) {
     return 2 * (x * x) + (5 * y) * (5 * y);
 }
 
-int c(int x, int y)
-{
+int c(int x, int y) {
     return -100 * x + y * y * y;
 }
 
-int main()
-{
+int main() {
     int N, x, y, rafael, beto, carlos;
 
     scanf("%d", &N);
