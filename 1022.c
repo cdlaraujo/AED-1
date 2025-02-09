@@ -1,6 +1,5 @@
 #include <stdio.h>
 
-// Function to compute GCD (Greatest Common Divisor) using Euclidean algorithm
 int gcd(int a, int b) {
     while (b != 0) {
         int temp = b;
@@ -11,19 +10,17 @@ int gcd(int a, int b) {
 }
 
 int main() {
-    int N; // Number of test cases
-    int N1, D1, N2, D2; // Numerators and denominators
-    char op, slash1, slash2; // Operator and slashes
+    int N;
+    int N1, D1, N2, D2; 
+    char op, slash1, slash2;
 
-    scanf("%d", &N); // Read number of test cases
-
+    scanf("%d", &N); 
     for (int i = 0; i < N; i++) {
-        // Read input format: N1 / D1 op N2 / D2
+
         scanf("%d %c %d %c %d %c %d", &N1, &slash1, &D1, &op, &N2, &slash2, &D2);
 
-        int num, den; // Result numerator and denominator
+        int num, den;
 
-        // Perform the operation
         if (op == '+') {
             num = N1 * D2 + N2 * D1;
             den = D1 * D2;
@@ -38,10 +35,8 @@ int main() {
             den = N2 * D1;
         }
 
-        // Compute GCD for simplification
         int divisor = gcd(num, den);
 
-        // Simplified fraction
         int simp_num = num / divisor;
         int simp_den = den / divisor;
         
@@ -50,7 +45,6 @@ int main() {
             simp_num = simp_num * (-1);
         }
 
-        // Print results
         printf("%d/%d = %d/%d\n", num, den, simp_num, simp_den);
     }
 
