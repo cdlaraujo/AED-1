@@ -45,7 +45,6 @@ int main() {
                 component_size = 0;
                 dfs(i, V);
                 
-                // Sort the component for ordered output
                 for (int j = 0; j < component_size - 1; j++) {
                     for (int k = j + 1; k < component_size; k++) {
                         if (component[j] > component[k]) {
@@ -56,7 +55,6 @@ int main() {
                     }
                 }
                 
-                // Print the component
                 for (int j = 0; j < component_size; j++) {
                     printf("%c,", component[j]);
                 }
