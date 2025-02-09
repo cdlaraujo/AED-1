@@ -15,21 +15,18 @@ int hash(int key, int table_size) {
 node** create_hash_table(int table_size) {
     node** hash_table = (node**)malloc(table_size * sizeof(node*));
     for (int i = 0; i < table_size; i++) {
-        hash_table[i] = NULL; // Inicializa cada posição como NULL
+        hash_table[i] = NULL; 
     }
     return hash_table;
 }
 
-// Inserção na tabela hash
 void insert_hash_table(int K, node** hash_table, int table_size) {
     int hash_index = hash(K, table_size); // Calcula índice usando a função hash
 
-    // Cria novo nó
     node* new_node = (node*)malloc(sizeof(node));
     new_node->key = K;
     new_node->next = NULL;
 
-    // Insere na lista encadeada da posição hash_index
     if (hash_table[hash_index] == NULL) {
         hash_table[hash_index] = new_node;
     } else {
@@ -41,7 +38,6 @@ void insert_hash_table(int K, node** hash_table, int table_size) {
     }
 }
 
-// Imprime a tabela hash
 void print_hash_table(node** hash_table, int table_size) {
     for (int i = 0; i < table_size; i++) {
         printf("%d ->", i);
@@ -54,7 +50,6 @@ void print_hash_table(node** hash_table, int table_size) {
     }
 }
 
-// Libera a memória da tabela hash
 void free_hash_table(node** hash_table, int table_size) {
     for (int i = 0; i < table_size; i++) {
         node* current = hash_table[i];
@@ -69,24 +64,19 @@ void free_hash_table(node** hash_table, int table_size) {
 
 int main() {
     int N, M, C, K;
-    scanf("%d", &N); // Número de casos de teste
+    scanf("%d", &N); 
 
     while (N--) {
-        scanf("%d", &M); // Tamanho da tabela
-        scanf("%d", &C); // Número de chaves a inserir
+        scanf("%d", &M);
+        scanf("%d", &C); 
 
-        // Criação da tabela hash
         node** hash_table = create_hash_table(M);
 
         for (int i = 0; i < C; i++) {
             scanf("%d", &K);
             insert_hash_table(K, hash_table, M);
         }
-
-        // Imprime a tabela hash
         print_hash_table(hash_table, M);
-
-        // Libera a memória alocada
         free_hash_table(hash_table, M);
     }
 
