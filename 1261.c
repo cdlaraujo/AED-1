@@ -8,7 +8,6 @@
 #define MAX_LENGTH 17 // Maximum word length (16 + 1 for null terminator)
 #define HASH_TABLE_SIZE 2003 // Prime number for better hashing
 
-// Hash table node structure
 typedef struct Node {
     char word[MAX_LENGTH];
     int value;
@@ -17,7 +16,6 @@ typedef struct Node {
 
 Node* hashTable[HASH_TABLE_SIZE];
 
-// Hash function
 unsigned int hash(const char* str) {
     unsigned int hash = 0;
     while (*str) {
@@ -27,7 +25,6 @@ unsigned int hash(const char* str) {
     return hash;
 }
 
-// Insert into hash table
 void insert(const char* word, int value) {
     unsigned int index = hash(word);
     Node* newNode = (Node*)malloc(sizeof(Node));
@@ -37,7 +34,6 @@ void insert(const char* word, int value) {
     hashTable[index] = newNode;
 }
 
-// Search in hash table
 int search(const char* word) {
     unsigned int index = hash(word);
     Node* current = hashTable[index];
@@ -47,10 +43,9 @@ int search(const char* word) {
         }
         current = current->next;
     }
-    return 0; // Word not found
+    return 0;
 }
 
-// Free hash table memory
 void freeHashTable() {
     for (int i = 0; i < HASH_TABLE_SIZE; i++) {
         Node* current = hashTable[i];
@@ -65,13 +60,10 @@ void freeHashTable() {
 int main() {
     int M, N;
 
-    // Read M and N
     scanf("%d %d", &M, &N);
 
-    // Initialize hash table
     memset(hashTable, 0, sizeof(hashTable));
 
-    // Read the dictionary
     for (int i = 0; i < M; i++) {
         char word[MAX_LENGTH];
         int value;
@@ -79,17 +71,14 @@ int main() {
         insert(word, value);
     }
 
-    // Process job descriptions
     for (int i = 0; i < N; i++) {
         char line[1001];
         int totalSalary = 0;
 
-        // Read job description lines until a period (.)
         while (1) {
             fgets(line, sizeof(line), stdin);
             if (line[0] == '.') break;
 
-            // Split line into words
             char* token = strtok(line, " \n");
             while (token) {
                 totalSalary += search(token);
@@ -97,11 +86,9 @@ int main() {
             }
         }
 
-        // Output the salary for the current job description
         printf("%d\n", totalSalary);
     }
 
-    // Free memory
     freeHashTable();
 
     return 0;
