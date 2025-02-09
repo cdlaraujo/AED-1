@@ -2,15 +2,15 @@
 
 int main() {
     int n;
-    scanf("%d", &n); // lê o número de casos de teste
+    scanf("%d", &n); 
 
     for (int i = 0; i < n; i++) {
-        char a[4]; // Array para armazenar a string (3 caracteres + '\0')
+        char a[4]; 
         scanf("%s", a);
 
-        int x = a[0] - '0'; // Primeiro número
-        int y = a[2] - '0'; // Segundo número
-        char c = a[1];      // Caracter operador
+        int x = a[0] - '0'; 
+        int y = a[2] - '0'; 
+        char c = a[1];    
 
         if (x == y) {
             printf("%d\n", x * x);
