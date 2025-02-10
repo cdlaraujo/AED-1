@@ -8,6 +8,7 @@ int comp(int a, int b)
     return a - b;
 }
 
+// merge--> funcao da internet
 void merge(int *V, int inicio, int meio, int fim)
 {
     int *aux = (int *)malloc((fim - inicio) * sizeof(int));
