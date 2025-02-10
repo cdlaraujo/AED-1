@@ -2,21 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_SIZE 1000000
-
 // Pilha para armazenar os valores e uma auxiliar para manter o mínimo
-int stack[MAX_SIZE];     
-int minStack[MAX_SIZE]; 
-int top = -1;
+int stack[1000000], int minStack[1000000], int topo = -1;
 
 void push(int value) {
     int currentMin = value;
-    if (top != -1) {
-        if (minStack[top] < value)
-            currentMin = minStack[top];
+    if (topo != -1) {
+        if (minStack[topo] < value)
+            currentMin = minStack[topo];
     }
-    stack[++top] = value;
-    minStack[top] = currentMin;
+    stack[++topo] = value;
+    minStack[topo] = currentMin;
 }
 
 void pop() {
@@ -31,7 +27,7 @@ void printMin() {
     if (top == -1) {
         printf("EMPTY\n");
     } else {
-        printf("%d\n", minStack[top]);
+        printf("%d\n", minStack[topo]);
     }
 }
 
