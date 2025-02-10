@@ -1,73 +1,71 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdlib.h> // pro malloc e qsort
+#include <string.h> // pro strcmp
 
-void limpar(const char *s, char *out) {
-    int i = 0, j = 0;
-    while (s[i] != '\0' && s[i] != '+') {
-        if (s[i] != '.')
-            out[j++] = s[i];
-        i++;
+// Remove pontos e tudo depois do +
+void limpar(const char *entrada, char *saida) {
+    int l = 0, r = 0;
+    while (entrada[l] && entrada[l] != '+') { // vai até o + ou fim
+        if (entrada[l] != '.') { // ignora pontos
+            saida[r] = entrada[l];
+            r++;
+        }
+        l++;
     }
-    out[j] = '\0';
+    saida[r] = '\0'; // termina a string
 }
 
-// Funcao da internet para comparar funções
-int compare_str(const void *a, const void *b) {
-    const char * const *sa = a;
-    const char * const *sb = b;
-    return strcmp(*sa, *sb);
+// Função comparadora pro qsort (peguei de um fórum)
+int cmp(const void *a, const void *b) {
+    return strcmp(*(char**)a, *(char**)b);
 }
 
-int main(void) {
-    int n;
-    scanf("%d", &n);
+int main() {
+    int N;
+    scanf("%d", &N); // número de emails
 
-    char **emails = malloc(n * sizeof(char *));
-    if (emails == NULL) {
-        return 1;
-    }
+    char **lista = malloc(N * sizeof(char*)); // aloca a lista
+    // if (!lista) return 1; // deveria verificar mas nem sempre lembro
 
-    char input[10005];
-    for (int i = 0; i < n; i++) {
-        scanf("%s", input);
-
-        char *at = strchr(input, '@');
-        if (at == NULL) {
-            emails[i] = strdup(input);
+    char temp[99999]; // buffer pro email
+    for (int i = 0; i < N; i++) {
+        scanf("%s", temp);
+        
+        char *arroba = strchr(temp, '@'); // acha o @
+        if (!arroba) { // sem @? estranho mas copia mesmo assim
+            lista[i] = strdup(temp);
             continue;
         }
-        int local_len = at - input;
-        char local[10005];
-        strncpy(local, input, local_len);
-        local[local_len] = '\0';
 
-        char *domain = at + 1;
+        // Separa local e domínio
+        *arroba = '\0'; // corta no @
+        char dominio[99999];
+        strcpy(dominio, arroba+1);
+        
+        char local_limpo[99999];
+        limpar(temp, local_limpo); // processa a parte local
 
-        char processed_local[10005];
-        limpar(local, processed_local);
-
-        char new_email[10005];
-        snprintf(new_email, MAX_LEN, "%s@%s", processed_local, domain);
-
-        emails[i] = strdup(new_email);
+        // Remonta o email
+        char final[99999];
+        sprintf(final, "%s@%s", local_limpo, dominio);
+        lista[i] = strdup(final); // duplica na lista
+        
+        // printf("DEBUG: %s => %s\n", temp, final); // útil pra testar
     }
 
-    qsort(emails, n, sizeof(char *), compare_str);
+    // Ordena pra contar os únicos
+    qsort(lista, N, sizeof(char*), cmp);
 
-    int distinct = (n > 0) ? 1 : 0;
-    for (int i = 1; i < n; i++) {
-        if (strcmp(emails[i], emails[i - 1]) != 0)
-            distinct++;
+    int unicos = N ? 1 : 0; // se tiver pelo menos 1, começa com 1
+    for (int j = 1; j < N; j++) {
+        if (strcmp(lista[j], lista[j-1])) // se for diferente
+            unicos++;
     }
+    printf("%d\n", unicos);
 
-    printf("%d\n", distinct);
-
-    // Libera memoria alocada
-    for (int i = 0; i < n; i++) {
-        free(emails[i]);
-    }
-    free(emails);
+    // Libera a memória (importante!)
+    for (int k = 0; k < N; k++) free(lista[k]);
+    free(lista);
 
     return 0;
 }
