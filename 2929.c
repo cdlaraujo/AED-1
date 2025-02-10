@@ -1,61 +1,78 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
 #include <string.h>
 
-// Pilha para armazenar os valores e uma auxiliar para manter o mínimo
-int stack[1000000], int minStack[1000000], int topo = -1;
+#define MAX 1000000 // tamanho bem grande
 
-void push(int value) {
-    int currentMin = value;
-    if (topo != -1) {
-        if (minStack[topo] < value)
-            currentMin = minStack[topo];
-    }
-    stack[++topo] = value;
-    minStack[topo] = currentMin;
+typedef struct {
+    int stack[MAX]; // elementos normais
+    int min_stack[MAX]; // guarda os mínimos
+    int topo; // índice do topo
+} Pilha;
+
+// Começa uma pilha nova
+void start(Pilha *p) {
+    p->topo = -1; // topo inválido
 }
 
-void pop() {
-    if (top == -1) {
+// Coloca um valor na pilha
+void push(Pilha *p, int num) {
+    if (p->topo + 1 >= MAX) {
+        return; // cheio
+    }
+    p->topo++;
+    p->stack[p->topo] = num;
+
+    // Atualiza o mínimo atual
+    if (p->topo == 0 || num < p->min_stack[p->topo - 1]) {
+        p->min_stack[p->topo] = num;
+    } else {
+        // Repete o mínimo anterior
+        p->min_stack[p->topo] = p->min_stack[p->topo - 1];
+    }
+}
+
+// Tira o último elemento
+void pop(Pilha *p) {
+    if (p->topo == -1) {
+        printf("EMPTY\n"); // está vazio
+    } else {
+        p->topo--; // diminui o topo
+    }
+}
+
+// Mostra o menor valor
+void min(Pilha *p) {
+    if (p->topo == -1) {
         printf("EMPTY\n");
     } else {
-        top--;
+        printf("%d\n", p->min_stack[p->topo]);
     }
 }
 
-void printMin() {
-    if (top == -1) {
-        printf("EMPTY\n");
-    } else {
-        printf("%d\n", minStack[topo]);
-    }
-}
+int main() {
+    Pilha p;
+    start(&p);
 
-int main(void) {
-    int N, value;
-    char op[5]; // 5 posições para comportar "PUSH", "POP", "MIN" e terminador '\0'
+    int n, x;
+    char cmd[6]; // "PUSH", "POP", "MIN"
 
-    if (scanf("%d", &N) != 1) {
-        return 4;
-    }
+    scanf("%d", &n); 
 
-    while (N--) {
-        if (scanf("%s", op) != 1) {
-            return 3;
-        }
-
-        // Compara as strings usando strcmp
-        if (strcmp(op, "PUSH") == 0) {
-            if (scanf("%d", &value) != 1) {
-                return 1;
-            }
-            push(value);
-        } else if (strcmp(op, "POP") == 0) {
-            pop();
-        } else if (strcmp(op, "MIN") == 0) {
-            printMin();
+    for(int i = 0; i < n; i++) {
+        scanf("%s", cmd);
+        
+        if (strcmp(cmd, "PUSH") == 0) {
+            scanf("%d", &x);
+            push(&p, x);
+            // printf("--> Pushed %d\n", x); // para debug
+        } else if (strcmp(cmd, "POP") == 0) {
+            pop(&p);
+        } else if (strcmp(cmd, "MIN") == 0) {
+            min(&p);
         } else {
-            return 2;
+            printf("INVALIDO\n"); // comando errado
+            return 1;
         }
     }
 
