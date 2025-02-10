@@ -2,7 +2,7 @@
 #include <stdlib.h> 
 #include <string.h>
 
-#define MAX 1000000 // tamanho bem grande
+#define MAX 1000000
 
 typedef struct {
     int stack[MAX]; // elementos normais
