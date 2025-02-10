@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+// funcao da internet de um forum para o qsort
 int comp(const void *a, const void *b)
 {
     return *(int *)b - *(int *)a;
