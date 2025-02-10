@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LEN 10005
-
 void limpar(const char *s, char *out) {
     int i = 0, j = 0;
     while (s[i] != '\0' && s[i] != '+') {
@@ -30,7 +28,7 @@ int main(void) {
         return 1;
     }
 
-    char input[MAX_LEN];
+    char input[10005];
     for (int i = 0; i < n; i++) {
         scanf("%s", input);
 
@@ -40,16 +38,16 @@ int main(void) {
             continue;
         }
         int local_len = at - input;
-        char local[MAX_LEN];
+        char local[10005];
         strncpy(local, input, local_len);
         local[local_len] = '\0';
 
         char *domain = at + 1;
 
-        char processed_local[MAX_LEN];
+        char processed_local[10005];
         limpar(local, processed_local);
 
-        char new_email[MAX_LEN];
+        char new_email[10005];
         snprintf(new_email, MAX_LEN, "%s@%s", processed_local, domain);
 
         emails[i] = strdup(new_email);
