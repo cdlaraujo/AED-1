@@ -1,123 +1,142 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Estrutura de nó para guardar as posições visitadas
 typedef struct node {
-    int i; 
-    int j; 
-    struct node* next; 
+    int i;
+    int j;
+    struct node* next;
 } node;
 
-void append_node(node** head, int x, int y) {
-    node* new_node = (node*)malloc(sizeof(node)); 
-    new_node->i = x;
-    new_node->j = y; 
-    new_node->next = NULL; 
+// Adiciona um novo nó (posição) ao final da lista
+void adicionarNo(node** head, int x, int y) {
+    node* novo = (node*)malloc(sizeof(node));
+    novo->i = x;
+    novo->j = y;
+    novo->next = NULL;
 
     if (*head == NULL) {
-        *head = new_node;
+        *head = novo;
     } else {
-        node* current = *head;
-        while (current->next != NULL) {
-            current = current->next;
+        node* atual = *head;
+        while (atual->next != NULL) {
+            atual = atual->next;
         }
-        current->next = new_node;
+        atual->next = novo;
     }
 }
 
-
-int check_duplicates(node* head, int x, int y) {
+// Verifica se a posição (x, y) já foi visitada
+int verificarDuplicata(node* head, int x, int y) {
     while (head != NULL) {
-        if (head->i == x && head->j == y) return 1;
-        head = head->next; 
+        if (head->i == x && head->j == y)
+            return 1;
+        head = head->next;
     }
-    return 0; 
+    return 0;
 }
 
-void free_list(node* head) {
-    node* current;
+// Libera toda a memória alocada para a lista
+void liberarLista(node* head) {
+    node* atual;
     while (head != NULL) {
-        current = head; 
-        head = head->next; 
-        free(current); 
+        atual = head;
+        head = head->next;
+        free(atual);
     }
 }
 
 int main() {
-    int width, height;
-    int i, j; 
+    int largura, altura;
+    int i, j;
     char c;
 
-    scanf("%d", &width);
-    scanf("%d", &height);
+    // Lê as dimensões do mapa
+    scanf("%d", &largura);
+    scanf("%d", &altura);
 
-    int** map = (int**)malloc(height * sizeof(int*));
-    for (i = 0; i < height; i++) {
-        map[i] = (int*)malloc(width * sizeof(int));
+    // Aloca a matriz que representa o mapa
+    int** mapa = (int**)malloc(altura * sizeof(int*));
+    for (i = 0; i < altura; i++) {
+        mapa[i] = (int*)malloc(largura * sizeof(int));
     }
 
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
+    // Preenche o mapa lendo os comandos de cada célula
+    for (i = 0; i < altura; i++) {
+        for (j = 0; j < largura; j++) {
             scanf(" %c", &c);
             switch (c) {
-                case '>': map[i][j] = 1; break; // direita
-                case '<': map[i][j] = 2; break; // esquerda
-                case '^': map[i][j] = 3; break; // para cima
-                case 'v': map[i][j] = 4; break; // para baixo
-                case '.': map[i][j] = 5; break; // sem comando
-                case '*': map[i][j] = 0; break; // baú encontrado
-                default: map[i][j] = -1; break; // inválido
+                case '>': mapa[i][j] = 1; break; // mover para a direita
+                case '<': mapa[i][j] = 2; break; // mover para a esquerda
+                case '^': mapa[i][j] = 3; break; // mover para cima
+                case 'v': mapa[i][j] = 4; break; // mover para baixo
+                case '.': mapa[i][j] = 5; break; // sem comando
+                case '*': mapa[i][j] = 0; break; // baú encontrado
+                default:  mapa[i][j] = -1; break; // comando inválido
             }
         }
     }
 
+    // Ponto de partida: canto superior esquerdo (0,0)
     i = 0, j = 0;
-    node* head = NULL; 
-    int command = map[i][j];
-    append_node(&head, i, j); 
+    node* visitados = NULL;
+    int comando = mapa[i][j]; // comando da célula inicial
+    adicionarNo(&visitados, i, j);
 
+    // Loop principal: segue as direções do mapa até achar o baú ou detectar problema
     while (1) {
-        while (map[i][j] == 5) {
-            if (command == 1) j++;       
-            else if (command == 2) j--;  
-            else if (command == 3) i--;  
-            else if (command == 4) i++;   
+        // Enquanto a célula atual não tiver um novo comando (valor 5), continua na mesma direção
+        while (mapa[i][j] == 5) {
+            if (comando == 1) j++; // vai para a direita
+            else if (comando == 2) j--; // vai para a esquerda
+            else if (comando == 3) i--; // sobe
+            else if (comando == 4) i++; // desce
 
-            if (i < 0 || j < 0 || j >= width || i >= height) {
-                printf("!"); 
-                free_list(head);
-                for (int k = 0; k < height; k++) free(map[k]);
-                free(map);
+            // Se sair dos limites do mapa, encerra com erro
+            if (i < 0 || j < 0 || j >= largura || i >= altura) {
+                printf("!");
+                liberarLista(visitados);
+                for (int k = 0; k < altura; k++) 
+                    free(mapa[k]);
+                free(mapa);
                 return 2;
             }
         }
 
-        if (map[i][j] == 0) {
-            printf("*"); 
-            free_list(head);
-            for (int k = 0; k < height; k++) free(map[k]);
-            free(map);
+        // Se encontrar o baú (célula com valor 0), está certo
+        if (mapa[i][j] == 0) {
+            printf("*");
+            liberarLista(visitados);
+            for (int k = 0; k < altura; k++) 
+                free(mapa[k]);
+            free(mapa);
             return 1;
         }
 
-        if (check_duplicates(head, i, j) == 1) {
-            printf("!"); 
-            free_list(head); 
-            for (int k = 0; k < height; k++) free(map[k]);
-            free(map);
+        // Se já visitou essa posição, significa loop:
+        if (verificarDuplicata(visitados, i, j) == 1) {
+            printf("!");
+            liberarLista(visitados);
+            for (int k = 0; k < altura; k++) 
+                free(mapa[k]);
+            free(mapa);
             return 2;
         } else {
-            append_node(&head, i, j);
+            adicionarNo(&visitados, i, j);
         }
 
-        if (map[i][j] == 1) command = 1; 
-        else if (map[i][j] == 2) command = 2; 
-        else if (map[i][j] == 3) command = 3;
-        else if (map[i][j] == 4) command = 4; 
+        // Atualiza o comando conforme a nova célula
+        if (mapa[i][j] == 1) comando = 1;
+        else if (mapa[i][j] == 2) comando = 2;
+        else if (mapa[i][j] == 3) comando = 3;
+        else if (mapa[i][j] == 4) comando = 4;
     }
 
-    free_list(head);
-    for (int k = 0; k < height; k++) free(map[k]);
-    free(map);
+    // Só para garantir
+    liberarLista(visitados);
+    for (int k = 0; k < altura; k++) 
+        free(mapa[k]);
+    free(mapa);
 
     return 0;
 }
