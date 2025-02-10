@@ -1,11 +1,11 @@
 #include <stdio.h>
-#include <stdlib.h> // pro malloc e qsort
-#include <string.h> // pro strcmp
+#include <stdlib.h> // malloc e qsort
+#include <string.h> // strcmp
 
 // Remove pontos e tudo depois do +
 void limpar(const char *entrada, char *saida) {
     int l = 0, r = 0;
-    while (entrada[l] && entrada[l] != '+') { // vai até o + ou fim
+    while (entrada[l] && entrada[l] != '+') { 
         if (entrada[l] != '.') { // ignora pontos
             saida[r] = entrada[l];
             r++;
@@ -15,7 +15,7 @@ void limpar(const char *entrada, char *saida) {
     saida[r] = '\0'; // termina a string
 }
 
-// Função comparadora pro qsort (peguei de um fórum)
+// Função comparadora qsort (da internet)
 int cmp(const void *a, const void *b) {
     return strcmp(*(char**)a, *(char**)b);
 }
@@ -25,19 +25,18 @@ int main() {
     scanf("%d", &N); // número de emails
 
     char **lista = malloc(N * sizeof(char*)); // aloca a lista
-    // if (!lista) return 1; // deveria verificar mas nem sempre lembro
+    // if (!lista) return 1; // deveria verificar
 
-    char temp[99999]; // buffer pro email
+    char temp[99999]; // buffer
     for (int i = 0; i < N; i++) {
         scanf("%s", temp);
         
         char *arroba = strchr(temp, '@'); // acha o @
-        if (!arroba) { // sem @? estranho mas copia mesmo assim
+        if (!arroba) { // ?
             lista[i] = strdup(temp);
             continue;
         }
 
-        // Separa local e domínio
         *arroba = '\0'; // corta no @
         char dominio[99999];
         strcpy(dominio, arroba+1);
@@ -50,7 +49,7 @@ int main() {
         sprintf(final, "%s@%s", local_limpo, dominio);
         lista[i] = strdup(final); // duplica na lista
         
-        // printf("DEBUG: %s => %s\n", temp, final); // útil pra testar
+        // printf("DEBUG: %s => %s\n", temp, final); // degub
     }
 
     // Ordena pra contar os únicos
@@ -63,7 +62,7 @@ int main() {
     }
     printf("%d\n", unicos);
 
-    // Libera a memória (importante!)
+    // Libera a memória
     for (int k = 0; k < N; k++) free(lista[k]);
     free(lista);
 
