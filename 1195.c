@@ -1,202 +1,183 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // pra malloc e free
 
 struct No {
-    int valor;
-    struct No *pai, *esq, *dir;
+    int val; // valor do nó
+    struct No *pai; // nó de cima
+    struct No *esq; // galho esquerdo
+    struct No *dir; // galho direito
 };
 
-struct ArvoreBinaria {
-    struct No* topo;
+struct Arvore {
+    struct No* raiz; // raiz da árvore
 };
 
-void inicializaNo(struct No *no){
-    no->valor = 0;
-    no->pai = NULL;
-    no->esq = NULL;
-    no->dir = NULL;
+// Prepara um nó novo
+void setupNo(struct No *no) {
+    no->val = 0;
+    no->pai = no->esq = no->dir = NULL; // todos null
 }
 
-void destroiNo(struct No *no){
-    if(no == NULL){
-        return;
-    }
-    no->valor = 0;
-    no->pai = NULL;
-    destroiNo(no->esq);
-    destroiNo(no->dir);
-    free(no);
+// Apaga um nó e seus filhos
+void apagaNo(struct No *no) {
+    if(!no) return;
+    
+    apagaNo(no->esq); // tanto faz esquerda ou direita
+    apagaNo(no->dir); 
+    free(no);         
 }
 
-void inicializaArvoreBinaria(struct ArvoreBinaria *ab){
-    ab->topo = NULL;
+// Começa uma árvore nova
+void iniciaArvore(struct Arvore *arv) {
+    arv->raiz = NULL; // sem raiz
 }
 
-void destroiArvoreBinaria(struct ArvoreBinaria *ab){
-    destroiNo(ab->topo);
+// Destrói toda a árvore
+void destroiArvore(struct Arvore *arv) {
+    apagaNo(arv->raiz);
 }
 
-struct No* adicionaNo(struct No *no, int valor){
-    if(no == NULL){
+// Adiciona um valor na árvore (recursivo)
+struct No* insere(struct No *no, int num, struct No *parente) {
+    if(!no) {
         no = (struct No*)malloc(sizeof(struct No));
-        inicializaNo(no);
-        no->valor = valor;
-    }else{
-        if(valor < no->valor){
-            no->esq = adicionaNo(no->esq, valor);
-            if(no->esq != NULL){
-                no->esq->pai = no;
-            }
-        }else if(valor > no->valor){
-            no->dir = adicionaNo(no->dir, valor);
-            if(no->dir != NULL){
-                no->dir->pai = no;
-            }
-        }
+        setupNo(no);
+        no->val = num;
+        no->pai = parente; 
+        return no;
     }
+    
+    if(num < no->val) {
+        no->esq = insere(no->esq, num, no);
+    } 
+    else if(num > no->val) {
+        no->dir = insere(no->dir, num, no);
+    }
+    // se igual, não faz nada
     
     return no;
 }
 
-void adicionaArvoreBinaria(struct ArvoreBinaria *ab, int valor){
-    ab->topo = adicionaNo(ab->topo, valor);
+// Função principal pra adicionar
+void add(struct Arvore *arv, int num) {
+    arv->raiz = insere(arv->raiz, num, NULL); 
 }
 
-struct No* buscaNo(struct No *no, int valor){
-    if(no == NULL){
-        return NULL;
-    }else if(valor < no->valor){
-        return buscaNo(no->esq, valor);
-    }else if(valor == no->valor){
-        return no;
-    }else{
-        return buscaNo(no->dir, valor);
-    }
-}
-
-int buscaArvoreBinaria(struct ArvoreBinaria *ab, int valor){
-    return buscaNo(ab->topo, valor) != NULL;
-}
-
-void removeNo(struct No *no){
-    if(no == NULL){
-        return;
-    }
+// Procura um valor na árvore
+struct No* busca(struct No *no, int alvo) {
+    if(!no) return NULL; // não achou
     
-    struct No* pai = no->pai;
-    if(no->esq == NULL && no->dir == NULL){
-        if(pai != NULL){
-            if(pai->esq == no){
-                pai->esq = NULL;
-            }else{
-                pai->dir = NULL;
-            }
+    if(alvo == no->val) return no; // encontrou
+    
+    if(alvo < no->val) {
+        return busca(no->esq, alvo); // procura na esquerda
+    } else {
+        return busca(no->dir, alvo); // procura na direita
+    }
+}
+
+// Remove um nó específico
+void tiraNo(struct No *no) {
+    if(!no) return;
+
+    // Caso 1: nó folha (sem filhos)
+    if(!no->esq && !no->dir) {
+        if(no->pai) {
+            if(no->pai->esq == no) no->pai->esq = NULL;
+            else no->pai->dir = NULL;
         }
-        destroiNo(no);
-    }else if(no->esq == NULL || no->dir == NULL){
-        struct No *filho = no->esq != NULL ? no->esq : no->dir;
-        if(pai != NULL){
-            if(pai->esq == no){
-                pai->esq = filho;
-            }else{
-                pai->dir = filho;
-            }
+        free(no);
+    }
+    else if(!no->esq || !no->dir) {
+        struct No *filho = no->esq ? no->esq : no->dir;
+        
+        if(no->pai) { 
+            if(no->pai->esq == no) no->pai->esq = filho;
+            else no->pai->dir = filho;
         }
-        destroiNo(no);
-    }else{
+        filho->pai = no->pai; 
+        free(no);
+    }
+    // Caso 3: tem dois filhos (chato)
+    else {
+        // Acha o menor da direita
         struct No* sucessor = no->dir;
-        while(sucessor->esq != NULL){
-            sucessor = sucessor->esq;
-        }
-        no->valor = sucessor->valor;
-        removeNo(sucessor);
-    }
-}
-
-void removeArvoreBinaria(struct ArvoreBinaria* ab, int valor){
-    struct No* no = buscaNo(ab->topo, valor);
-
-    if(no != NULL && no->pai == NULL){
-        if(no->esq == NULL && no->dir == NULL){
-            ab->topo = NULL;
-        }else if(no->esq == NULL || no->dir == NULL){
-            ab->topo = no->esq != NULL ? no->esq : no->dir;
-        }
-    }
-    removeNo(no);
-}
-
-void prefixaNo(struct No* no){
-    if(no == NULL){
-        return;
-    }
-
-    printf(" %d", no->valor);
-    prefixaNo(no->esq);
-    prefixaNo(no->dir);
-}
-
-void prefixaArvoreBinaria(struct ArvoreBinaria* ab){
-    printf("Pre.:");
-    prefixaNo(ab->topo);
-    printf("\n");
-}
-
-void infixaNo(struct No* no){
-    if(no == NULL){
-        return;
-    }
-    
-    infixaNo(no->esq);
-    printf(" %d", no->valor);
-    infixaNo(no->dir);
-}
-
-void infixaArvoreBinaria(struct ArvoreBinaria* ab){
-    printf("In..:");
-    infixaNo(ab->topo);
-    printf("\n");
-}
-
-void posfixaNo(struct No* no){
-    if(no == NULL){
-        return;
-    }
-    
-    posfixaNo(no->esq);
-    posfixaNo(no->dir);
-    printf(" %d", no->valor);
-}
-
-void posfixaArvoreBinaria(struct ArvoreBinaria* ab){
-    printf("Post:");
-    posfixaNo(ab->topo);
-    printf("\n");
-}
-
-int main()
-{
-    int i, k, C, N, x;
-    struct ArvoreBinaria ab;
-    
-    scanf("%d\n", &C);
-    for(k = 1; k <= C; ++k){
-        scanf("%d\n", &N);
+        while(sucessor->esq) sucessor = sucessor->esq;
         
-        inicializaArvoreBinaria(&ab);
-        for(i = 0; i < N; ++i){
+        no->val = sucessor->val; // copia o valor
+        tiraNo(sucessor); // remove o sucessor
+    }
+}
+
+// Remove um valor da árvore
+void removeValor(struct Arvore* arv, int num) {
+    struct No* alvo = busca(arv->raiz, num);
+    if(!alvo) return; // não existe
+    
+    if(alvo == arv->raiz) {
+        if(!alvo->esq && !alvo->dir) arv->raiz = NULL;
+        else if(!alvo->esq || !alvo->dir) {
+            arv->raiz = alvo->esq ? alvo->esq : alvo->dir;
+            arv->raiz->pai = NULL;
+        }
+    }
+    
+    tiraNo(alvo);
+}
+
+// Imprime pré-ordem
+void preOrdem(struct No* no) {
+    if(!no) return;
+    printf(" %d", no->val); // primeiro o valor
+    preOrdem(no->esq); // depois esquerda
+    preOrdem(no->dir); // depois direita
+}
+
+// Imprime em ordem
+void emOrdem(struct No* no) {
+    if(!no) return;
+    emOrdem(no->esq); // esquerda primeiro
+    printf(" %d", no->val); // valor no meio
+    emOrdem(no->dir); // direita depois
+}
+
+// Imprime pós-ordem
+void posOrdem(struct No* no) {
+    if(!no) return;
+    posOrdem(no->esq); // esquerda
+    posOrdem(no->dir); // direita
+    printf(" %d", no->val); // valor por último
+}
+
+// Main com uns prints bonitinhos
+int main() {
+    int C, N, x;
+    struct Arvore arv;
+    
+    scanf("%d", &C); // número de casos
+    
+    for(int caso = 1; caso <= C; caso++) {
+        scanf("%d", &N); // quantos números?
+        
+        iniciaArvore(&arv); // reseta a árvore
+        
+        for(int i = 0; i < N; i++) {
             scanf("%d", &x);
-            adicionaArvoreBinaria(&ab, x);
+            add(&arv, x); // adiciona cada número
         }
         
-        printf("Case %d:\n", k);
-        prefixaArvoreBinaria(&ab);
-        infixaArvoreBinaria(&ab);
-        posfixaArvoreBinaria(&ab);
-        printf("\n");
+        printf("Case %d:\n", caso);
         
-        destroiArvoreBinaria(&ab);
+        printf("Pre.:");
+        preOrdem(arv.raiz);
+        printf("\nIn..:");
+        emOrdem(arv.raiz);
+        printf("\nPost:");
+        posOrdem(arv.raiz);
+        printf("\n\n");
+        
+        destroiArvore(&arv); // limpa tudo
     }
-
+    
     return 0;
 }
