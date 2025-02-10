@@ -1,74 +1,84 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> // pra qsort e malloc
 
 typedef struct {
-    int u, v, weight;
-} Edge;
+    int u, v;       // vértices
+    int peso;        // peso da aresta
+} Aresta;
 
-int compareEdges(const void *a, const void *b) {
-    Edge *edge1 = (Edge *)a;
-    Edge *edge2 = (Edge *)b;
-    return edge1->weight - edge2->weight;
+// Compara duas arestas pro qsort (ordem crescente)
+int cmp(const void *a, const void *b) {
+    Aresta *x = (Aresta*)a;
+    Aresta *y = (Aresta*)b;
+    return x->peso - y->peso; // mais leve primeiro
 }
 
-int find(int parent[], int x) {
-    if (parent[x] != x)
-        parent[x] = find(parent, parent[x]);
-    return parent[x];
+// Acha o pai do conjunto (com path compression)
+int encontraPai(int conj[], int x) {
+    if (conj[x] != x) {
+        conj[x] = encontraPai(conj, conj[x]); // comprime caminho
+    }
+    return conj[x];
 }
 
-void unionSets(int parent[], int rank[], int x, int y) {
-    int rootX = find(parent, x);
-    int rootY = find(parent, y);
-
-    if (rootX != rootY) {
-        if (rank[rootX] > rank[rootY]) {
-            parent[rootY] = rootX;
-        } else if (rank[rootX] < rank[rootY]) {
-            parent[rootX] = rootY;
-        } else {
-            parent[rootY] = rootX;
-            rank[rootX]++;
-        }
+// Une dois conjuntos (union by rank)
+void uneConj(int conj[], int rank[], int x, int y) {
+    int px = encontraPai(conj, x);
+    int py = encontraPai(conj, y);
+    
+    if (px == py) return; // já tão juntos
+    
+    // Faz a menor árvore ficar debaixo da maior
+    if (rank[px] > rank[py]) {
+        conj[py] = px;
+    } else {
+        conj[px] = py;
+        if (rank[px] == rank[py]) rank[py]++;
     }
 }
 
 int main() {
-    int m, n;
-    while (scanf("%d %d", &m, &n), m || n) {
-        Edge edges[n];
-        long long totalCost = 0;
-
-        for (int i = 0; i < n; i++) {
-            scanf("%d %d %d", &edges[i].u, &edges[i].v, &edges[i].weight);
-            totalCost += edges[i].weight;
+    int m, n; // m = vértices, n = arestas
+    
+    // Lê enquanto m e n não forem ambos zero
+    while(scanf("%d %d", &m, &n), m || n) {
+        Aresta lista[n];
+        long long total = 0;
+        
+        // Lê todas arestas
+        for(int i = 0; i < n; i++) {
+            scanf("%d %d %d", &lista[i].u, &lista[i].v, &lista[i].peso);
+            total += lista[i].peso; // soma total
         }
-
-        qsort(edges, n, sizeof(Edge), compareEdges);
-
-        // algoritmo de Kruskal
-        int parent[m], rank[m];
-        for (int i = 0; i < m; i++) {
-            parent[i] = i;
-            rank[i] = 0;
+        
+        // Ordena as arestas por peso
+        qsort(lista, n, sizeof(Aresta), cmp);
+        
+        int conj[m];  // array de pais
+        int rank[m]; // altura da árvore
+        for(int i = 0; i < m; i++) {
+            conj[i] = i; // cada um é seu próprio pai
+            rank[i] = 0; // altura inicial zero
         }
-
-        long long mstCost = 0;
-        int edgesUsed = 0;
-
-        for (int i = 0; i < n && edgesUsed < m - 1; i++) {
-            int u = edges[i].u;
-            int v = edges[i].v;
-
-            if (find(parent, u) != find(parent, v)) {
-                unionSets(parent, rank, u, v);
-                mstCost += edges[i].weight;
-                edgesUsed++;
+        
+        long long mst = 0;
+        int pegas = 0; // arestas na MST
+        
+        // Algoritmo de Kruskal
+        for(int i = 0; i < n && pegas < m-1; i++) {
+            int u = lista[i].u;
+            int v = lista[i].v;
+            
+            if(encontraPai(conj, u) != encontraPai(conj, v)) {
+                uneConj(conj, rank, u, v);
+                mst += lista[i].peso;
+                pegas++;
+                // printf("Usei aresta %d-%d\n", u, v); // debug
             }
         }
-
-
-        printf("%lld\n", totalCost - mstCost);
+        
+        // Economia = Total - MST
+        printf("%lld\n", total - mst);
     }
 
     return 0;
