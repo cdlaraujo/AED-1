@@ -3,23 +3,22 @@
 
 double duracaoNota(char nota)
 {
-    switch (nota)
-    {
-    case 'W':
+    if (nota == 'W')
         return 1.0;
-    case 'H':
+    else if (nota == 'H')
         return 0.5;
-    case 'Q':
+    else if (nota == 'Q')
         return 0.25;
-    case 'E':
+    else if (nota == 'E')
         return 0.125;
-    case 'S':
+    else if (nota == 'S')
         return 0.0625;
-    case 'T':
+    else if (nota == 'T')
         return 0.03125;
-    case 'X':
+    else if (nota == 'X')
         return 0.015625;
-    }
+    
+    return 0.0; // Caso a nota não seja reconhecida
 }
 
 int main()
@@ -28,7 +27,7 @@ int main()
     double duracao;
     char composicao[1000];
 
-    while (scanf("%[^\n]\n", &composicao) != EOF)
+    while (scanf("%[^\n]\n", composicao) != EOF)
     {
         if (strcmp(composicao, "*") == 0)
             break;
