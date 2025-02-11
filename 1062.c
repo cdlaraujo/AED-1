@@ -1,108 +1,125 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct pilhaNo{
-    int valor;
-    struct pilhaNo* abaixo;
+// Estrutura do nó da pilha
+struct StackNode {
+    int val;// valor atual
+    struct StackNode* prox; // próximo nó (embaixo na pilha)
 };
 
-struct pilha{
-    int tamanho;
-    struct pilhaNo* topo;
+// Estrutura principal da pilha
+struct Stack {
+    int tamanho; // qtd de elementos
+    struct StackNode* topo; // elemento do topo
 };
 
-void push(struct pilha* p, int valor){
-    p->tamanho += 1;
-    struct pilhaNo* novoTopo = (struct pilhaNo*) malloc(sizeof(struct pilhaNo));
-
-    novoTopo->valor = valor;
-    novoTopo->abaixo = p->topo;
-    p->topo = novoTopo;
+// Coloca um valor na pilha
+void empilha(struct Stack* p, int num) {
+    struct StackNode* novo = malloc(sizeof(struct StackNode));
+    novo->val = num;
+    novo->prox = p->topo;  // novo nó aponta pro antigo topo
+    p->topo = novo;        // atualiza o topo
+    p->tamanho++;
 }
 
-void pop(struct pilha* p){
-    if(p->tamanho > 0){
-        p->tamanho -= 1;
-        struct pilhaNo* velhoTopo = p->topo;
-        p->topo = p->topo->abaixo;
-        free(velhoTopo);
-    }
+// Tira o elemento do topo
+void desempilha(struct Stack* p) {
+    if(p->tamanho == 0) return;  // pilha vazia
+    
+    struct StackNode* velho = p->topo;
+    p->topo = p->topo->prox;    // novo topo é o próximo
+    free(velho);
+    p->tamanho--;
 }
 
-int top(struct pilha* p){
-    return p->topo->valor;
+// Pega o valor do topo (cuidado se estiver vazia!)
+int topo(struct Stack* p) {
+    return p->topo->val;  // TODO: devia verificar se existe
 }
 
-int size(struct pilha* p){
-    return p->tamanho;
-}
-
-int empty(struct pilha* p){
+// Verifica se a pilha tá vazia
+int vazia(struct Stack* p) {
     return p->tamanho == 0;
 }
 
-void inicializa(struct pilha* p){
+// Prepara uma nova pilha
+void nova_pilha(struct Stack* p) {
     p->tamanho = 0;
     p->topo = NULL;
 }
 
-void destroi(struct pilha* p){
-    while(!empty(p)){
-        pop(p);
+// Limpa toda a pilha
+void limpa_pilha(struct Stack* p) {
+    while(!vazia(p)) {
+        desempilha(p);  // vai desempilhando até esvaziar
     }
 }
 
-int main(){
-    int N, x;
-    struct pilha A, estacao, B;
+int main() {
+    int N, num;
+    struct Stack entrada, estacao, saida;
 
-    while(scanf("%d", &N) != EOF){
-        if(!N)  break;
-
-        while(scanf("%d", &x)){
-            if(!x){
+    while(scanf("%d", &N) != EOF) {
+        if(N == 0) break;  // fim da entrada
+        
+        while(1) {
+            scanf("%d", &num);
+            if(num == 0) {  // fim do caso de teste
                 printf("\n");
                 break;
             }
-
-            inicializa(&A);
-            inicializa(&estacao);
-            inicializa(&B);
-
-            push(&A, x);
-            push(&B, 1);
-            for(int i = 2; i <= N; ++i){
-                scanf("%d", &x);
-                push(&A, x);
-                push(&B, i);
+            
+            // Reseta todas as pilhas
+            nova_pilha(&entrada);
+            nova_pilha(&estacao);
+            nova_pilha(&saida);
+            
+            // Preenche as pilhas com os valores iniciais
+            empilha(&entrada, num);
+            empilha(&saida, 1);  // sequência desejada começa com 1
+            
+            for(int i = 2; i <= N; i++) {
+                scanf("%d", &num);
+                empilha(&entrada, num);
+                empilha(&saida, i);  // sequência ideal 1,2,3...N
             }
-
-            while(!empty(&A) || !empty(&estacao) || !empty(&B)){
-                if(!empty(&A) && !empty(&B) && top(&A) == top(&B)){
-                    pop(&A);
-                    pop(&B);
-                }else if(!empty(&estacao) && !empty(&B) && top(&estacao) == top(&B)){
-                    pop(&estacao);
-                    pop(&B);
-                }else if(!empty(&A)){
-                    push(&estacao, top(&A));
-                    pop(&A);
-                }else{
-                    break;
+            
+            // Processamento principal
+            while(1) {
+                // Tenta encaixar direto da entrada pra saída
+                if(!vazia(&entrada) && !vazia(&saida) && topo(&entrada) == topo(&saida)) {
+                    desempilha(&entrada);
+                    desempilha(&saida);
+                }
+                // Tenta pegar da estação pra saída
+                else if(!vazia(&estacao) && !vazia(&saida) && topo(&estacao) == topo(&saida)) {
+                    desempilha(&estacao);
+                    desempilha(&saida);
+                }
+                // Move da entrada pra estação
+                else if(!vazia(&entrada)) {
+                    empilha(&estacao, topo(&entrada));
+                    desempilha(&entrada);
+                }
+                else {
+                    break;  // não tem mais o que fazer
                 }
             }
-
-            if(empty(&A) && empty(&estacao) && empty(&B)){
+            
+            // Verifica se deu certo
+            if(vazia(&entrada) && vazia(&estacao) && vazia(&saida)) {
                 printf("Yes\n");
-            }else{
+            }
+            else {
                 printf("No\n");
             }
-
-            destroi(&A);
-            destroi(&estacao);
-            destroi(&B);
+            
+            // Limpeza das pilhas para o próximo caso
+            limpa_pilha(&entrada);
+            limpa_pilha(&estacao);
+            limpa_pilha(&saida);
         }
     }
-
+    
     return 0;
 }
